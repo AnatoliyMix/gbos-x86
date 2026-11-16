@@ -900,6 +900,11 @@ if [ -f $G/audio/gbos-hda-pch/audio_config.xml ]; then
           && log "hook: audio audio_config for the Surface Laptop 7 installed"
       fi
     fi
+    if [ "$CID" = sofsoundwire ] && [ -f $G/audio/mixer_paths_dell_latitude_7320.xml ] \
+       && grep -qiE 'Latitude.*7320|7320.*Detachable' /sys/class/dmi/id/product_name 2>/dev/null; then
+      cp $G/audio/mixer_paths_dell_latitude_7320.xml /tmp/gbos-audio/$AC/mixer_paths.xml \
+        && log "hook: audio mixer_paths for the Dell Latitude 7320 (RT1316/RT711/RT714) installed"
+    fi
     # ASRC lives in /tmp of the initramfs, which switch_root deletes: a bind mount of it is empty in Android (dras: "Failed to read
     # /vendor/etc/audio/gbos-gen/audio_config.xml"), so the files are copied into the tmpfs over /vendor/etc/audio below.
     ASRC=/tmp/gbos-audio/$AC; ADEF=/tmp/gbos-audio/audio_default.xml

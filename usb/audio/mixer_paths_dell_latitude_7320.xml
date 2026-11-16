@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mixer>
+	<!-- gbos: card sofsoundwire on Dell Latitude 7320 Detachable (Tiger Lake):
+	     RT1316 speaker amp + RT711-SDCA jack codec + RT714/RT715-SDCA dmic.
+	     Controls that the card does not have are skipped by audio_route. -->
+	<path name="Speaker">
+		<ctl name="rt1316-1 RX Channel Select" value="L,R" />
+		<ctl name="rt1316-1 DAC L Switch" value="1" />
+		<ctl name="rt1316-1 DAC R Switch" value="1" />
+		<ctl name="rt1316-1 DAC Switch" value="1" />
+		<ctl name="Speaker Switch" value="1" />
+	</path>
+	<path name="Headphone">
+		<ctl name="Headphone Switch" value="1" />
+	</path>
+	<path name="Mic">
+		<ctl name="rt711 FU0F Capture Switch" value="1 1" />
+		<ctl name="rt711 FU0F Capture Volume" value="50 50" />
+		<ctl name="Headset Mic Switch" value="1" />
+	</path>
+	<path name="InternalMic">
+		<ctl name="rt714 FU02 Capture Switch" value="1 1" />
+		<ctl name="rt714 FU02 Capture Volume" value="50 50" />
+		<ctl name="rt715 FU1E Capture Switch" value="1 1" />
+		<ctl name="rt715 FU1E Capture Volume" value="50 50" />
+	</path>
+	<path name="HDMI1">
+	</path>
+	<path name="HDMI2">
+	</path>
+	<path name="HDMI3">
+	</path>
+</mixer>
