@@ -28,6 +28,12 @@ JOBS=${2:-$(nproc)}
 VOL=gbos-ksrc
 C=/build/inputs/clang-r584948c
 
+# Ensure busybox exists for the stage0 initramfs
+if [ ! -f "$ROOT/kernel/out/busybox" ] && [ -f "$ROOT/tools/fetch_busybox.sh" ]; then
+  echo "kernel/out/busybox not found, fetching..."
+  sh "$ROOT/tools/fetch_busybox.sh" "$ROOT/kernel/out/busybox"
+fi
+
 # The base config: the one embedded in the shipped kernel, unless one is given.
 BASE=${1:-}
 W=$(mktemp -d "${TMPDIR:-/tmp}/kcfg.XXXXXX"); trap 'rm -rf "$W"' EXIT

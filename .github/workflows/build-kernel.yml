@@ -29,6 +29,9 @@ jobs:
       - name: Fetch kernel sources & toolchain
         run: sh -x kernel/fetch_kernel_sources.sh
 
+      - name: Fetch busybox
+        run: sh -x tools/fetch_busybox.sh
+
       - name: Build Kernel & Modules
         run: sh -x kernel/build_kernel.sh
 
