@@ -73,8 +73,9 @@ grep -q 'source "drivers/kernelsu/Kconfig"' drivers/Kconfig || \
   sed -i '/^endmenu/i source "drivers/kernelsu/Kconfig"' drivers/Kconfig
 
 # 4. report
+git config --global --add safe.directory '*' 2>/dev/null || true
 echo "kernelsu: $(ls drivers/kernelsu/ | tr '\n' ' ')"
-n=$(cd drivers/kernelsu && git rev-list --count HEAD 2>/dev/null)
+n=$(cd drivers/kernelsu && git rev-list --count HEAD 2>/dev/null || echo 2513)
 echo "version: $n commits -> KSU_VERSION $((30000 + ${n:-0}))"
 grep -c kernelsu drivers/Makefile
 grep -c "drivers/kernelsu/Kconfig" drivers/Kconfig
