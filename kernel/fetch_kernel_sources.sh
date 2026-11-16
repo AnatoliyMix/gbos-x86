@@ -16,7 +16,7 @@ KSRC_COMMIT=3938c8d97142d5cf31543aa96f864a2cf832dda0   # AOSP kernel/common andr
 KSRC_TAR=kernel-common-$KSRC_COMMIT.tar.gz
 KSRC_SHA=d078c2db2db1d2e47d74c59a31a5020774814655bfbe20bbb2286b9e430495c9
 CLANG_TAG=android-17.0.0_r1        # AOSP prebuilts/clang/host/linux-x86
-CLANG_DIR=clang-r584948b           # the toolchain the shipped kernel #37 was built with
+CLANG_DIR=clang-r584948c           # the toolchain the shipped kernel #37 was built with
 KSU_TAG=v3.3.1
 
 DL=$ROOT/build/dl
