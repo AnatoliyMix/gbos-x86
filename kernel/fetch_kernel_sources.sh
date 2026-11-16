@@ -43,18 +43,21 @@ else
 fi
 
 # --- 2. AOSP clang -----------------------------------------------------------------
-if docker run --rm -v "$VOL":/build debian:trixie test -x /build/inputs/$CLANG_DIR/bin/clang; then
+if docker run --rm -v "$VOL":/build debian:trixie test -x /build/inputs/clang-r584948c/bin/clang || \
+   docker run --rm -v "$VOL":/build debian:trixie test -x /build/inputs/clang-r584948b/bin/clang; then
   say "clang: present in $VOL"
 else
   say "clang: android.googlesource.com prebuilts/clang/host/linux-x86 ($CLANG_TAG)"
   rm -rf "$DL/clang-prebuilts"
   git clone --filter=blob:none --sparse --depth 1 --branch "$CLANG_TAG" \
     https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 "$DL/clang-prebuilts"
-  git -C "$DL/clang-prebuilts" sparse-checkout set "$CLANG_DIR"
+  CLANG_ACTUAL=$(ls "$DL/clang-prebuilts" | grep '^clang-r' | head -n 1 || echo "$CLANG_DIR")
+  [ -n "$CLANG_ACTUAL" ] || CLANG_ACTUAL=$CLANG_DIR
+  git -C "$DL/clang-prebuilts" sparse-checkout set "$CLANG_ACTUAL"
   # Only the toolchain is needed; the NDK runtimes and the C++ library are not.
-  rm -rf "$DL/clang-prebuilts/$CLANG_DIR"/{android_libc++,musl,python3,runtimes_ndk_cxx}
+  rm -rf "$DL/clang-prebuilts/$CLANG_ACTUAL"/{android_libc++,musl,python3,runtimes_ndk_cxx}
   docker run --rm -v "$VOL":/build -v "$DL":/dl:ro debian:trixie \
-    bash -c "set -e; mkdir -p /build/inputs; cp -a /dl/clang-prebuilts/$CLANG_DIR /build/inputs/"
+    bash -c "set -e; mkdir -p /build/inputs; cp -a /dl/clang-prebuilts/$CLANG_ACTUAL /build/inputs/; cd /build/inputs; ln -sfn $CLANG_ACTUAL clang-r584948c; ln -sfn $CLANG_ACTUAL clang-r584948b"
 fi
 
 # --- 3. KernelSU -------------------------------------------------------------------
