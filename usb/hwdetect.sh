@@ -122,7 +122,7 @@ gbos_wait_devices() {
     # SoundWire machine driver is in. Surface Laptop 7: RT1320 amp + RT721 jack codec. Latitude 7320: RT711 (SDCA) jack codec,
     # RT1316 amp, RT714 (rt715-sdca driver) on the topology sof-tgl-rt711-l0-rt1316-l1-mono-rt714-l3. Harmless without the chips.
     # Once per boot (the module names are only asked for when the machine driver is loaded).
-    if grep -q '^snd_soc_sof_sdw ' /proc/modules && [ -z "$GBOS_SDW_REQ" ]; then
+    if grep -q -E '^(soundwire_intel|snd_soc_sof_sdw) ' /proc/modules && [ -z "$GBOS_SDW_REQ" ]; then
       GBOS_SDW_REQ=1
       modprobe -a -q snd-soc-rt1320-sdw snd-soc-rt721-sdca snd-soc-rt711-sdca snd-soc-rt1316-sdw snd-soc-rt715-sdca 2>/dev/null \
         && log "hwdetect: SoundWire codec modules requested (rt1320, rt721, rt711-sdca, rt1316, rt715-sdca)"
