@@ -80,19 +80,19 @@ cp /build/out/.config.new /build/out/.config
 /build/src/scripts/config --file /build/out/.config \\
   --set-str CMDLINE "\$(cat /host/kernel/isa_emu_patch/generic_cmdline.txt)" \\
   --set-str INITRAMFS_SOURCE ""
-make -C /build/src O=/build/out ARCH=x86_64 LLVM=$C/bin/ CC=$C/bin/clang-22 olddefconfig > /dev/null
+make -C /build/src O=/build/out ARCH=x86_64 LLVM=$C/bin/ CC=$C/bin/clang olddefconfig > /dev/null
 
 # 3. the kernel and the modules
-make -C /build/src O=/build/out ARCH=x86_64 LLVM=$C/bin/ CC=$C/bin/clang-22 -j$JOBS bzImage modules
+make -C /build/src O=/build/out ARCH=x86_64 LLVM=$C/bin/ CC=$C/bin/clang -j$JOBS bzImage modules
 
 # 4. the stage0 initramfs (busybox + init + the modules stage0 loads) and the kernel with it
 rm -rf /build/modroot_all
-make -C /build/src O=/build/out ARCH=x86_64 LLVM=$C/bin/ CC=$C/bin/clang-22 \\
+make -C /build/src O=/build/out ARCH=x86_64 LLVM=$C/bin/ CC=$C/bin/clang \\
   modules_install INSTALL_MOD_PATH=/build/modroot_all INSTALL_MOD_STRIP=1 > /dev/null
 sh /host/kernel/make_stage0_initramfs.sh /build/modroot_all /build/out/gbos_stage0.cpio
 /build/src/scripts/config --file /build/out/.config --set-str INITRAMFS_SOURCE /build/out/gbos_stage0.cpio
-make -C /build/src O=/build/out ARCH=x86_64 LLVM=$C/bin/ CC=$C/bin/clang-22 olddefconfig > /dev/null
-make -C /build/src O=/build/out ARCH=x86_64 LLVM=$C/bin/ CC=$C/bin/clang-22 -j$JOBS bzImage
+make -C /build/src O=/build/out ARCH=x86_64 LLVM=$C/bin/ CC=$C/bin/clang olddefconfig > /dev/null
+make -C /build/src O=/build/out ARCH=x86_64 LLVM=$C/bin/ CC=$C/bin/clang -j$JOBS bzImage
 echo "BUILD OK"
 EOF
 
