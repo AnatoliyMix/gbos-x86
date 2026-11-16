@@ -57,8 +57,6 @@ else
   CLANG_ACTUAL=$(git -C "$DL/clang-prebuilts" ls-tree --name-only HEAD 2>/dev/null | grep '^clang-r' | head -n 1)
   [ -n "$CLANG_ACTUAL" ] || CLANG_ACTUAL=clang-r584948b
   git -C "$DL/clang-prebuilts" sparse-checkout set "$CLANG_ACTUAL"
-  # Only the toolchain is needed; the NDK runtimes and the C++ library are not.
-  rm -rf "$DL/clang-prebuilts/$CLANG_ACTUAL"/{android_libc++,musl,python3,runtimes_ndk_cxx}
   docker run --rm -v "$VOL":/build -v "$DL":/dl:ro debian:trixie \
     bash -c "set -e; mkdir -p /build/inputs; cp -a /dl/clang-prebuilts/$CLANG_ACTUAL /build/inputs/; cd /build/inputs; ln -sfn $CLANG_ACTUAL clang-r584948c; ln -sfn $CLANG_ACTUAL clang-r584948b; [ -f /build/inputs/$CLANG_ACTUAL/bin/clang-22 ] || ln -s clang /build/inputs/$CLANG_ACTUAL/bin/clang-22"
 fi

@@ -44,6 +44,7 @@ docker run --rm -i --platform linux/amd64 -v "$VOL":/build -v "$ROOT":/host:ro -
 set -e
 export PATH=$C/bin:\$PATH LD_LIBRARY_PATH=$C/lib:\$LD_LIBRARY_PATH
 [ -x $C/bin/clang-22 ] || ln -sf clang $C/bin/clang-22 2>/dev/null || true
+$C/bin/clang --version || true
 # KernelSU reads its version from its own git checkout; the volume's files are root's, the
 # checkout on the host is not, so git would refuse it without this.
 git config --global --add safe.directory /build/inputs/KernelSU
