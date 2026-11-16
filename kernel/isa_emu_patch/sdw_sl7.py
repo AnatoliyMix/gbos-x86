@@ -13,11 +13,24 @@ The laptop has an RT721 jack codec (link 3) and RT1320 amp(s) (link 0); the BIOS
  3. soc_sdw_utils.c: skip BIOS-declared peripherals that never attached (the ghost RT1320); keep num_devs, which sof_sdw sized
     codec_conf by, in step (else WARN_ON(codec_conf != card->codec_conf + card->num_configs)).
 Not covered: the internal microphone array (RT1320 DMIC DAI + cfg-mics, see nierdal's patch in linux-surface #1710)."""
+import os
 import sys
 
 root = (sys.argv[1] if len(sys.argv) > 1 else '/build/src').rstrip('/')
 AMP = 'sound/soc/sdw_utils/soc_sdw_rt_amp.c'
 UTL = 'sound/soc/sdw_utils/soc_sdw_utils.c'
+
+# Upgrade existing patch if applied without <linux/dmi.h>
+p_utl = root + '/' + UTL
+if os.path.exists(p_utl):
+    s_utl = open(p_utl).read()
+    if 'static bool asoc_sdw_peripheral_unattached' in s_utl and '#include <linux/dmi.h>' not in s_utl:
+        s_utl = s_utl.replace(
+            "/* gbOS: BIOS-declared SoundWire peripheral",
+            "#include <linux/dmi.h>\n\n/* gbOS: BIOS-declared SoundWire peripheral"
+        )
+        open(p_utl, 'w').write(s_utl)
+        print('upgraded: added <linux/dmi.h> to ' + UTL)
 
 
 def edit(path, old, new, label):
@@ -46,6 +59,7 @@ edit(UTL,
 
 edit(UTL,
      "int asoc_sdw_parse_sdw_endpoints(struct snd_soc_card *card,\n",
+     "#include <linux/dmi.h>\n\n"
      "/* gbOS: BIOS-declared SoundWire peripheral that never enumerated (ghost amp on Surface Laptop 7 Intel) */\n"
      "static bool asoc_sdw_peripheral_unattached(const char *name)\n"
      "{\n"
