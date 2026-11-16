@@ -6,7 +6,7 @@
 set -e
 P=${P:-/host/kernel/ashmem_shim}
 cp $P/memfd-ashmem-shim.c mm/
-grep -q 'memfd-ashmem-shim.o' mm/Makefile
+grep -q 'memfd-ashmem-shim.o' mm/Makefile || echo 'obj-$(CONFIG_MEMFD_ASHMEM_SHIM) += memfd-ashmem-shim.o' >> mm/Makefile
 grep -q 'config MEMFD_ASHMEM_SHIM' mm/Kconfig || sed -i '/^config MEMFD_CREATE$/i \
 config MEMFD_ASHMEM_SHIM\
 \tbool "ashmem ioctls on memfd without the Rust ashmem driver"\

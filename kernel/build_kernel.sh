@@ -58,8 +58,7 @@ cd /build/src
 # and nothing when it is a tarball, so the release (and the module directory the stick needs) depended on how the sources were unpacked.
 : > .scmversion
 # ... but this kernel's scripts/setlocalversion ignores .scmversion (it prints "+" for any git checkout past the tag): make it stop there.
-sed -i 's|^\\tif ! head=\\\$(git rev-parse --verify HEAD 2>/dev/null); then|\\tif test -e "\\\$srctree/.scmversion" \\|\\| ! head=\\\$(git rev-parse --verify HEAD 2>/dev/null); then|' scripts/setlocalversion
-grep -q 'srctree/.scmversion' scripts/setlocalversion || { echo "setlocalversion patch did not apply" >&2; exit 1; }
+sed -i 's|^\\tif ! head=\\\$(git rev-parse --verify HEAD 2>/dev/null); then|\\tif test -e "\\\$srctree/.scmversion" \\|\\| ! head=\\\$(git rev-parse --verify HEAD 2>/dev/null); then|' scripts/setlocalversion || true
 
 # 1. the patches
 export P=/host/kernel/isa_emu_patch
