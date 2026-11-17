@@ -1,6 +1,25 @@
 # gbos pre-Android hook: sourced by stage0 just before switch_root (Android root at /new,
 # helpers log/fail/shell and $G=/gbos/gbos available). Edit freely, no kernel rebuild needed.
 
+# /dev/null must be the character device (1,3). Kernel #46's stage0 runs `echo ... > /proc/sys/kernel/printk 2>/dev/null` on the empty /dev
+# tmpfs BEFORE its `mknod /dev/null`: the redirect creates /dev/null as a REGULAR FILE and the mknod then fails with "File exists".
+# Android inherits that file: everything written to "/dev/null" piles up in it, and fds on it have moving offsets. zygote_next audits
+# every fd of each SpawnSubspecies child against what it saved at start (including the file offset of fds 0-2), rejects them, and the
+# child dies with "Reinitialization" / EBADF: Chrome's sandboxed processes and WebView renderers never start, system_server's
+# single process-start thread then stalls, and every app freezes (HANDOFF.md 2026-11-16). Our own logs showed it all along: every AVC
+# on /dev/null in the Vostro 3400 bundle has tclass=file (a character device is chr_file) and tcontext tmpfs, not null_device.
+# Found by itakosu55 (fork branch fix-zygote-next-dev-null). stage0_init.sh now creates the nodes first, but that needs a kernel
+# rebuild; this repairs it on every kernel. New node first, renamed over the file: if mknod fails, the old /dev/null stays.
+if [ ! -c /dev/null ]; then
+  rm -f /dev/.gbos-null
+  if mknod -m 666 /dev/.gbos-null c 1 3 && mv -f /dev/.gbos-null /dev/null && [ -c /dev/null ]; then
+    log "hook: /dev/null was a regular file (stage0 bug), recreated as the character device"
+  else
+    rm -f /dev/.gbos-null
+    log "hook: /dev/null is not a character device and could not be recreated"
+  fi
+fi
+
 # Reset one-shot MODE=live back to MODE=ask so subsequent boots prompt the user
 if [ -f "$G/gbos.cfg" ] && grep -q '^MODE=live' "$G/gbos.cfg" 2>/dev/null; then
   sed -i 's/^MODE=live/MODE=ask/' "$G/gbos.cfg" 2>/dev/null || true
@@ -405,6 +424,9 @@ on property:sys.gbos_dri_fixed=1
 
 on post-fs-data
 $IDCRC
+on boot
+    setprop persist.zygote.zygote_next.start_on_boot false
+    start gbos_nativezygote
 on property:sys.boot_completed=1
     # KMS debug was on during the HWC's first modesets (set early in hook.sh); turn it off again.
     write /sys/module/drm/parameters/debug 0
@@ -445,6 +467,16 @@ service gbos_optimize /system/bin/sh /postinstall/gbos/optimize.sh
     group root
     seclabel u:r:shell:s0
     oneshot
+
+# Android 17 zygote_next (Native Framework Prototype): its subspecies children die in "Reinitialization" here, so isolated app processes
+# (Chrome GPU/sandboxed, WebView) never start: blank app windows. usb/native_zygote.sh keeps the framework flag off and logs zygote_next's
+# open fds to logs/boot-N/native-zygote.txt. The script runs for the whole boot (it re-applies the flag every minute), so it is oneshot.
+service gbos_nativezygote /system/bin/sh /postinstall/gbos/native_zygote.sh $N
+    user root
+    group root
+    seclabel u:r:shell:s0
+    oneshot
+    disabled
 
 # AI diagnostics (Magic Pointer / AICore): usb/aidiag.sh writes logs/boot-N/ai-1.txt (90 s) and ai-2.txt (4 min).
 # The gbos_aidns_* services run one ping per app uid so aidiag can compare DNS as AICore (10107) with
