@@ -266,6 +266,46 @@ print('PYOK' if not bad else 'PYBAD'); sys.exit(1 if bad else 0)
 EOF
 if [ $? = 0 ]; then ok "sdw: Speaker pcm 2, Headphone pcm 0, jack mic pcm 1, no Deepbuffer PCM, jack names"; else bad "sdw mapping: $(cat $W/sdw.py.out)"; fi
 
+# ---- 5b2. Dell Latitude 7320 Detachable SoundWire (RT1316 speaker pcm 2, RT711 jack pcm 0/1, RT714/715 dmic pcm 4 "Microphone (*)") ---
+D=$(mk sdwdell)
+cat > $D/cards <<'EOF'
+ 0 [sofsoundwire   ]: sof-soundwire - sof-soundwire
+                      DellInc.-Latitude7320Detachable-0P00J4
+EOF
+cat > $D/pcm <<'EOF'
+00-00: Jack Out (*) :  : playback 1
+00-01: Jack In (*) :  : capture 1
+00-02: Speaker (*) :  : playback 1
+00-04: Microphone (*) :  : capture 1
+00-05: HDMI 1 (*) :  : playback 1
+00-06: HDMI 2 (*) :  : playback 1
+00-07: HDMI 3 (*) :  : playback 1
+00-31: Jack Out DeepBuffer (*) :  : playback 1
+EOF
+cat > $D/input <<'EOF'
+N: Name="sof-soundwire Headset Jack"
+N: Name="sof-soundwire HDMI/DP,pcm=5"
+EOF
+gen sdwdell gbos-gen sofsoundwire sof-soundwire >/dev/null
+C=$W/out-sdwdell/gbos-gen/audio_config.xml
+wellformed "$C"
+python3 - "$C" > "$W/sdwdell.py.out" 2>&1 <<'EOF'
+import sys, xml.etree.ElementTree as E
+h = E.parse(sys.argv[1]).getroot().find('HiFi')
+def g(sec, tag):
+    e = h.find(sec); return None if e is None else e.findtext(tag)
+exp = {('Speaker','PlaybackPCM'): 'hw:sofsoundwire,2',
+       ('Headphone','PlaybackPCM'): 'hw:sofsoundwire,0',
+       ('Mic','CapturePCM'): 'hw:sofsoundwire,1',
+       ('InternalMic','CapturePCM'): 'hw:sofsoundwire,4',
+       ('HDMI1','PlaybackPCM'): 'hw:sofsoundwire,5'}
+bad = 0
+for (s, t), v in exp.items():
+    if g(s, t) != v: print('FAIL', s, t, 'got', g(s, t), 'want', v); bad += 1
+print('PYOK' if not bad else 'PYBAD'); sys.exit(1 if bad else 0)
+EOF
+if [ $? = 0 ]; then ok "sdwdell: InternalMic pcm 4, Mic pcm 1, Speaker pcm 2"; else bad "sdwdell mapping: $(cat $W/sdwdell.py.out)"; fi
+
 # ---- 5c. Meteor Lake SOF-HDA (Lenovo ThinkBook Plus G5 Hybrid 21N9, Core Ultra 7 155H; TAS2781 I2C amps behind the Realtek codec; HDMI
 #          codec at address 2). NOT a real /proc/asound capture: the card does not exist yet (probe fails on the missing topology).
 #          Card id/name are what skl_hda_dsp_generic registers (same as the ENVY); the PCM list is the one in

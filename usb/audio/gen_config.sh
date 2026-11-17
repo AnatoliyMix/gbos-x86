@@ -45,7 +45,7 @@ if [ -n "$CARDNO" ] && [ -f "$ASOUND/pcm" ]; then
       pb = (line ~ / : playback [1-9]/); cp = (line ~ / : capture [1-9]/)
       if (low ~ /deep ?buffer|echo|loopback|bluetooth|offload|reference|(^| )(sco|hfp|a2dp)( |$)/) next
       if (pb && low ~ /hdmi|displayport|idisp/) { hdmi = hdmi " " dev; next }
-      if (cp && !pb && low ~ /dmic/) { if (low ~ /16 *khz|16k/) { if (d16 == "") d16 = dev } else if (dm == "") dm = dev; next }
+      if (cp && !pb && low ~ /(dmic|microphone|internal mic)/) { if (low ~ /16 *khz|16k/) { if (d16 == "") d16 = dev } else if (dm == "") dm = dev; next }
       if (pb && sp == "" && low ~ /(^| )speaker/) { sp = dev; next }   # SoundWire: the speaker amp has its own PCM
       if (pb && apb == "") apb = dev
       if (cp && acp == "") acp = dev

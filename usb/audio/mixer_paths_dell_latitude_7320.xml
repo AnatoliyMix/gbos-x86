@@ -16,13 +16,30 @@
 	<path name="Mic">
 		<ctl name="rt711 FU0F Capture Switch" value="1 1" />
 		<ctl name="rt711 FU0F Capture Volume" value="50 50" />
+		<ctl name="rt711-sdca FU0F Capture Switch" value="1 1" />
+		<ctl name="rt711-sdca FU0F Capture Volume" value="50 50" />
+		<ctl name="rt711 FU09 Capture Switch" value="1 1" />
+		<ctl name="rt711 FU09 Capture Volume" value="50 50" />
+		<ctl name="rt711-sdca FU09 Capture Switch" value="1 1" />
+		<ctl name="rt711-sdca FU09 Capture Volume" value="50 50" />
 		<ctl name="Headset Mic Switch" value="1" />
 	</path>
 	<path name="InternalMic">
 		<ctl name="rt714 FU02 Capture Switch" value="1 1" />
 		<ctl name="rt714 FU02 Capture Volume" value="50 50" />
+		<ctl name="rt714 FU1E Capture Switch" value="1 1" />
+		<ctl name="rt714 FU1E Capture Volume" value="50 50" />
+		<ctl name="rt715 FU02 Capture Switch" value="1 1" />
+		<ctl name="rt715 FU02 Capture Volume" value="50 50" />
 		<ctl name="rt715 FU1E Capture Switch" value="1 1" />
 		<ctl name="rt715 FU1E Capture Volume" value="50 50" />
+		<ctl name="rt715-sdca FU02 Capture Switch" value="1 1" />
+		<ctl name="rt715-sdca FU02 Capture Volume" value="50 50" />
+		<ctl name="rt715-sdca FU1E Capture Switch" value="1 1" />
+		<ctl name="rt715-sdca FU1E Capture Volume" value="50 50" />
+		<ctl name="Dmic0 Capture Switch" value="1 1" />
+		<ctl name="PGA6.0 6 Master Capture Switch" value="1 1" />
+		<ctl name="PGA6.0 6 Master Capture Volume" value="50 50" />
 	</path>
 	<path name="HDMI1">
 	</path>
