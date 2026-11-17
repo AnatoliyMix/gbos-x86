@@ -61,6 +61,9 @@ gbos_modopts() {
     log "hwdetect: MODOPTS: mapped legacy XE_PARAMS to xe options"
   fi
 
+  # Tiger Lake / Dell Latitude 7320: disable PSR and FBC on i915 to prevent black screen / freeze on wake
+  echo "options i915 enable_psr=0 enable_fbc=0" >> /etc/modprobe.d/gbos.conf
+
   # Backward compatibility: LOAD_I915=0 blacklists i915
   if [ "$LOAD_I915" = "0" ]; then
     echo "blacklist i915" >> /etc/modprobe.d/gbos.conf

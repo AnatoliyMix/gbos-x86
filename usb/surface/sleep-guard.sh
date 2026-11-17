@@ -3,8 +3,8 @@
 # Manages lid close / open events, prevents unhandled s2idle sleep freezes,
 # and dynamically optimizes Intel P-state / EPP power profiles.
 
-# Exit immediately on non-Surface hardware
-if ! grep -qi 'Surface' /sys/class/dmi/id/product_name 2>/dev/null; then
+# Exit immediately on unsupported hardware (currently Surface and Dell Latitude 7320)
+if ! grep -qiE 'Surface|Latitude.*7320|7320.*Detachable' /sys/class/dmi/id/product_name 2>/dev/null; then
     exit 0
 fi
 
@@ -174,8 +174,9 @@ while true; do
   if grep -q "closed" /proc/acpi/button/lid/*/state 2>/dev/null; then
     lid_state="closed"
   fi
-  dpms_state=$(cat /sys/class/drm/card0-eDP-1/dpms 2>/dev/null)
-  cur_brt=$(cat /sys/class/backlight/intel_backlight/brightness 2>/dev/null)
+  dpms_state=$(cat /sys/class/drm/card*-eDP-*/dpms 2>/dev/null | head -n 1)
+  bl_dir=$(ls -d /sys/class/backlight/* 2>/dev/null | head -n 1)
+  cur_brt=$(cat $bl_dir/brightness 2>/dev/null)
   if [ -n "$cur_brt" ] && [ "$cur_brt" -gt 100 ] 2>/dev/null; then
     saved_brt=$cur_brt
   fi
@@ -194,10 +195,10 @@ while true; do
         [ -w "$inh" ] && echo 0 > "$inh" 2>/dev/null
       done
       cmd power wakeup 2>/dev/null
-      echo 0 > /sys/class/backlight/intel_backlight/bl_power 2>/dev/null
-      cur_brt=$(cat /sys/class/backlight/intel_backlight/brightness 2>/dev/null)
-      if [ "$cur_brt" = "0" ]; then
-        echo "$saved_brt" > /sys/class/backlight/intel_backlight/brightness 2>/dev/null
+      [ -n "$bl_dir" ] && echo 0 > "$bl_dir/bl_power" 2>/dev/null
+      cur_brt=$(cat $bl_dir/brightness 2>/dev/null)
+      if [ "$cur_brt" = "0" ] && [ -n "$bl_dir" ]; then
+        echo "${saved_brt:-500}" > "$bl_dir/brightness" 2>/dev/null
       fi
       last_lid="open"
     else
