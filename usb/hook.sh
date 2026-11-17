@@ -274,6 +274,20 @@ gbos_drm_setup() {
 }
 gbos_drm_setup
 
+# Set up IIO sensor nodes (accelerometer, gyro, rotation) for Android Sensor HAL
+gbos_iio_setup() {
+  for _i in /sys/class/iio/device*; do
+    [ -f "$_i/dev" ] || continue
+    _iname=${_i##*/}
+    _idev=$(cat "$_i/dev")
+    [ -c "/dev/$_iname" ] || mknod -m 0666 "/dev/$_iname" c ${_idev%:*} ${_idev#*:}
+  done
+  chmod 0666 /dev/iio:device* 2>/dev/null || true
+  chmod -R 0777 /sys/bus/iio/devices/* 2>/dev/null || true
+  log "hook: IIO sensor nodes configured for Android Sensor HAL"
+}
+gbos_iio_setup
+
 # Maximize CPU governor early to prevent throttling during init and software rendering
 for _g in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
   echo performance > "$_g" 2>/dev/null || true
@@ -440,7 +454,7 @@ on property:sys.boot_completed=1
 # update_engine runs normally to satisfy GMS binder without crashing
 
 # Skip SetupWizard completely and launch desktop (animations/blur are handled by optimize.sh, software rendering only)
-service gbos_skip_setup /system/bin/sh -c "sleep 1; settings put --user 0 secure user_setup_complete 1; settings put --user 10 secure user_setup_complete 1; settings put secure user_setup_complete 1; settings put global device_provisioned 1; settings put global setup_wizard_has_run 1; settings put global force_resizable_activities 1; settings put global enable_freeform_support 1; settings put global ota_disable_automatic_update 1; settings put global auto_system_update 0; setprop ro.setupwizard.mode DISABLED; am start --user 10 -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null; am start -n com.google.android.apps.nexuslauncher/.NexusLauncherActivity -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null"
+service gbos_skip_setup /system/bin/sh -c "sleep 1; settings put --user 0 secure user_setup_complete 1; settings put --user 10 secure user_setup_complete 1; settings put secure user_setup_complete 1; settings put global device_provisioned 1; settings put global setup_wizard_has_run 1; settings put global force_resizable_activities 1; settings put global enable_freeform_support 1; settings put global ota_disable_automatic_update 1; settings put global auto_system_update 0; settings put system accelerometer_rotation 1; setprop ro.setupwizard.mode DISABLED; am start --user 10 -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null; am start -n com.google.android.apps.nexuslauncher/.NexusLauncherActivity -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null"
     user root
     group root
     seclabel u:r:shell:s0
