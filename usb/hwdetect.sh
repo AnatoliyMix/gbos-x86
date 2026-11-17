@@ -181,8 +181,8 @@ gbos_hw_report() {
     for m in xe i915; do
       [ -d /sys/module/$m/parameters ] && { echo "== $m parameters"; for p in /sys/module/$m/parameters/*; do echo "${p##*/}=$(cat $p 2>/dev/null)"; done; }
     done
-    echo "== driver messages (wifi, graphics, camera, audio, bluetooth; first 250)"
-    dmesg | grep -iE 'iwlwifi|iwlmvm|iwlmld|\bxe [0-9a-f:.]+|\[drm|ipu[0-9]|intel-ipu|ivsc|sof-audio|snd_sof|sof-firmware|soundwire|cs42l43|Bluetooth: hci|btintel|No config found|unsupported' | head -250
+    echo "== driver messages (wifi, graphics, camera, audio, bluetooth, wwan; first 250)"
+    dmesg | grep -iE 'iwlwifi|iwlmvm|iwlmld|\bxe [0-9a-f:.]+|\[drm|ipu[0-9]|intel-ipu|ivsc|sof-audio|snd_sof|sof-firmware|soundwire|cs42l43|Bluetooth: hci|btintel|wwan|mbim|qmi|cdc_wdm|option|No config found|unsupported' | head -250
     echo "== lsmod"; lsmod
   } > $L/hwdetect.txt 2>&1
   log "hwdetect: report written (hwdetect.txt)"
