@@ -1,4 +1,3 @@
-@@ -1,448 +1,2 @@
 # gbos-x86 (gbOS86)
 
 <p align="center"><img src="docs/demo.gif" alt="gbOS86 running on a Dell Latitude 5300" height="420">&nbsp;&nbsp;<img src="docs/screenshot-dell-latitude-5300.jpg" alt="Googlebook OS on a Dell Latitude 5300" height="420"></p>
